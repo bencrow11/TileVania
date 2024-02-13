@@ -14,7 +14,9 @@ public class PlayerMovement : MonoBehaviour
     Rigidbody2D myRigidBody; // The body of the player.
     Animator myAnimator; // Animator to change animations based on movement.
     [SerializeField] float runSpeed = 10f; // Speed the player should move at.
-    [SerializeField] float jumpSpeed = 5; // Speed the player should jump at.
+    [SerializeField] float jumpSpeed = 5f; // Speed the player should jump at.
+    [SerializeField] float climbSpeed = 5f; // Speed the player should climb ladders.
+    float gravityScaleAtStart; // The gravity of the player.
     CapsuleCollider2D myCapsuleCollider; // Collider to check if player is touching objects.
 
     void Start()
@@ -23,6 +25,7 @@ public class PlayerMovement : MonoBehaviour
         myRigidBody = GetComponent<Rigidbody2D>();
         myAnimator = GetComponent<Animator>();
         myCapsuleCollider = GetComponent<CapsuleCollider2D>();
+        gravityScaleAtStart = myRigidBody.gravityScale;
     }
 
     void Update()
@@ -30,6 +33,7 @@ public class PlayerMovement : MonoBehaviour
         // Move and flip the sprite, if the player is moving.
         Run();
         FlipSprite();
+        ClimbLadder();
     }
 
     void OnMove(InputValue value)
@@ -78,5 +82,26 @@ public class PlayerMovement : MonoBehaviour
             transform.localScale = new Vector2(Mathf.Sign(myRigidBody.velocity.x), 1f);
         }
 
+    }
+
+    void ClimbLadder()
+    {
+
+        // If the player isn't touching a ladder, just return.
+        if (!myCapsuleCollider.IsTouchingLayers(LayerMask.GetMask("Climbing")))
+        {
+            myRigidBody.gravityScale = gravityScaleAtStart; // Sets the gravity scale to default if the player isn't climbing.
+            myAnimator.SetBool("isClimbing", false); // Stops the climbing animation.
+            return;
+        }
+
+        // Sets the players velocity if they're climbing a ladder.
+        Vector2 climbVelocity = new Vector2(myRigidBody.velocity.x, moveInput.y * climbSpeed);
+        myRigidBody.velocity = climbVelocity;
+        myRigidBody.gravityScale = 0f; // Sets the gravity to 0 so they don't fall down it.
+
+        bool playerHasVerticalSpeed = Mathf.Abs(myRigidBody.velocity.y) > Mathf.Epsilon;
+
+        myAnimator.SetBool("isClimbing", playerHasVerticalSpeed); // Sets the climbing animation if the player is moving vertically.
     }
 }
