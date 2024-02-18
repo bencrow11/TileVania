@@ -16,9 +16,13 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] float runSpeed = 10f; // Speed the player should move at.
     [SerializeField] float jumpSpeed = 5f; // Speed the player should jump at.
     [SerializeField] float climbSpeed = 5f; // Speed the player should climb ladders.
+    [SerializeField] Vector2 deathKick = new Vector2(10f, 10f); // The velocity of the death position.
+    [SerializeField] GameObject bullet; // The bullet the player can shoot.
+    [SerializeField] Transform gun; // the gun that shoots the bullet.
     float gravityScaleAtStart; // The gravity of the player.
     CapsuleCollider2D myBodyCollider; // Collider to check if player is touching objects.
     BoxCollider2D myFeetCollider; // The players collider for their feet.
+    bool isAlive = true; // Is the player alive?
 
     void Start()
     {
@@ -32,20 +36,45 @@ public class PlayerMovement : MonoBehaviour
 
     void Update()
     {
+        if (!isAlive) // If the isn't alive, just return.
+        {
+            return;
+        }
+
         // Move and flip the sprite, if the player is moving.
         Run();
         FlipSprite();
         ClimbLadder();
+        Die();
+    }
+
+    void OnFire(InputValue value)
+    {
+        if (!isAlive) // If the isn't alive, just return.
+        {
+            return;
+        }
+
+        Instantiate(bullet, gun.position, transform.rotation); // Shoot a bullet.
     }
 
     void OnMove(InputValue value)
     {
+        if (!isAlive) // If the isn't alive, just return.
+        {
+            return;
+        }
+
         // Set the move input to the input vector value.
         moveInput = value.Get<Vector2>();
     }
 
     void OnJump(InputValue value)
     {
+        if (!isAlive) // If the isn't alive, just return.
+        {
+            return;
+        }
 
         // If the player isn't touching the ground, just return.
         if (!myFeetCollider.IsTouchingLayers(LayerMask.GetMask("Ground")))
@@ -106,5 +135,16 @@ public class PlayerMovement : MonoBehaviour
         bool playerHasVerticalSpeed = Mathf.Abs(myRigidBody.velocity.y) > Mathf.Epsilon;
 
         myAnimator.SetBool("isClimbing", playerHasVerticalSpeed); // Sets the climbing animation if the player is moving vertically.
+    }
+
+    void Die()
+    {
+        // If the player is touching an enemy, kill them.
+        if (myBodyCollider.IsTouchingLayers(LayerMask.GetMask("Enemies", "Hazards")))
+        {
+            isAlive = false; // Sets isAlive to false.
+            myAnimator.SetTrigger("Dying"); // Set the animation to dying.
+            myRigidBody.velocity = deathKick;
+        }
     }
 }
