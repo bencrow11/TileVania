@@ -17,14 +17,16 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] float jumpSpeed = 5f; // Speed the player should jump at.
     [SerializeField] float climbSpeed = 5f; // Speed the player should climb ladders.
     float gravityScaleAtStart; // The gravity of the player.
-    CapsuleCollider2D myCapsuleCollider; // Collider to check if player is touching objects.
+    CapsuleCollider2D myBodyCollider; // Collider to check if player is touching objects.
+    BoxCollider2D myFeetCollider; // The players collider for their feet.
 
     void Start()
     {
         // Initialise all fields.
         myRigidBody = GetComponent<Rigidbody2D>();
         myAnimator = GetComponent<Animator>();
-        myCapsuleCollider = GetComponent<CapsuleCollider2D>();
+        myBodyCollider = GetComponent<CapsuleCollider2D>();
+        myFeetCollider = GetComponent<BoxCollider2D>();
         gravityScaleAtStart = myRigidBody.gravityScale;
     }
 
@@ -44,8 +46,9 @@ public class PlayerMovement : MonoBehaviour
 
     void OnJump(InputValue value)
     {
+
         // If the player isn't touching the ground, just return.
-        if (!myCapsuleCollider.IsTouchingLayers(LayerMask.GetMask("Ground")))
+        if (!myFeetCollider.IsTouchingLayers(LayerMask.GetMask("Ground")))
         {
             return;
         }
@@ -88,7 +91,7 @@ public class PlayerMovement : MonoBehaviour
     {
 
         // If the player isn't touching a ladder, just return.
-        if (!myCapsuleCollider.IsTouchingLayers(LayerMask.GetMask("Climbing")))
+        if (!myFeetCollider.IsTouchingLayers(LayerMask.GetMask("Climbing")))
         {
             myRigidBody.gravityScale = gravityScaleAtStart; // Sets the gravity scale to default if the player isn't climbing.
             myAnimator.SetBool("isClimbing", false); // Stops the climbing animation.
