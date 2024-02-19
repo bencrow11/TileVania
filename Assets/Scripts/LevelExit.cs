@@ -9,10 +9,10 @@ public class LevelExit : MonoBehaviour
 
     void OnTriggerEnter2D(Collider2D other)
     {
-
-        StartCoroutine(LoadNextLevel()); // When the exit is triggered, start a coroutine that will load the next level.
-
-
+        if (other.tag == "Player") // If the player triggers the collider:
+        {
+            StartCoroutine(LoadNextLevel()); // When the exit is triggered, start a coroutine that will load the next level.
+        }
     }
 
     IEnumerator LoadNextLevel()

@@ -145,6 +145,7 @@ public class PlayerMovement : MonoBehaviour
             isAlive = false; // Sets isAlive to false.
             myAnimator.SetTrigger("Dying"); // Set the animation to dying.
             myRigidBody.velocity = deathKick;
+            FindObjectOfType<GameSession>().ProcessPlayerDeath();
         }
     }
 }
