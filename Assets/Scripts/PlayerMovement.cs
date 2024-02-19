@@ -45,7 +45,7 @@ public class PlayerMovement : MonoBehaviour
         Run();
         FlipSprite();
         ClimbLadder();
-        Die();
+        StartCoroutine(Die());
     }
 
     void OnFire(InputValue value)
@@ -137,7 +137,7 @@ public class PlayerMovement : MonoBehaviour
         myAnimator.SetBool("isClimbing", playerHasVerticalSpeed); // Sets the climbing animation if the player is moving vertically.
     }
 
-    void Die()
+    IEnumerator Die()
     {
         // If the player is touching an enemy, kill them.
         if (myBodyCollider.IsTouchingLayers(LayerMask.GetMask("Enemies", "Hazards")))
@@ -145,6 +145,9 @@ public class PlayerMovement : MonoBehaviour
             isAlive = false; // Sets isAlive to false.
             myAnimator.SetTrigger("Dying"); // Set the animation to dying.
             myRigidBody.velocity = deathKick;
+
+            yield return new WaitForSecondsRealtime(1f); // wait the delay.
+
             FindObjectOfType<GameSession>().ProcessPlayerDeath();
         }
     }
