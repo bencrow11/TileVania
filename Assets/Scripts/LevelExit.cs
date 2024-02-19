@@ -27,6 +27,7 @@ public class LevelExit : MonoBehaviour
             nextSceneIndex = 0; // If the next scene index is the same as scene count (no next index), reset it to 0.
         }
 
+        FindObjectOfType<ScenePersist>().ResetScenePersist(); // Resets the scene persist.
         SceneManager.LoadScene(nextSceneIndex); // Load the next scene.
     }
 }
